@@ -1,4 +1,4 @@
-import { fetch, cancelFetch, setLatestPrice, setChart, setCompany, addData } from '../actionCreator';
+import { fetch, setLatestPrice, setChart, setCompany, addData, removeData } from '../actionCreator';
 import { getLatestStockPrice, getChart, getCompany } from '../../lib/stockApi';
 
 // const MAX_REQUEST_TIME = 5000;
@@ -8,23 +8,21 @@ export const search = () => ( dispatch, getState ) => {
 
   if( symbol !== '' ){
     dispatch( fetch() );
-    // checkCache( symbol, cache );
-
     Promise.all([
       fetchLatestPrice( symbol ),
       fetchCompany( symbol ),
     ])
       .then( ([ latestPrice, company ]) => {
-        dispatch (fetchChartData( symbol ));
+        dispatch( fetchChartData( symbol ));
         dispatch( setLatestPrice(latestPrice) );
-        dispatch( setCompany(company) );
-        dispatch( controllerCache() );
+        dispatch( setCompany( company ) );
+        dispatch( controllerCache( symbol) );
       })
       .catch( ( msg ) => console.log( msg ));
     // dispatch( updateLatestPrice( symbol));
     // dispatch( updateChartData( symbol ));
     // dispatch( updateCompany( symbol ));
-    dispatch( addData() );
+    // dispatch( addData() );
   }else{
     alert( 'ERRO' );
   }
@@ -76,13 +74,17 @@ const fetchChartData = ( symbol ) => ( dispatch ) => {
 
 };
 
-const controllerCache = () => ( dispatch, getState ) => {
-  const { cache } = getState();
-  if( cache.length >= 2 ){
-      console.log( 'ta cheio' );
-      console.log(cache.length);
+const controllerCache = ( symbol ) => ( dispatch, getState ) => {
+  const { cache, current } = getState();
+  let c = cache.filter( ( data ) => {
+        return (data.symbol === symbol)
+      } );
+  console.log( c.length );
+  if( c.length !== 0 ){
+    //ja tem o dado no cache
+    //resta apenas setar
   }else{
-    console.log(cache.length);
-  }
-  
+      if( cache.length >= 10 ){ dispatch( removeData(0)) }
+      dispatch( addData( current) );
+  }  
 }
