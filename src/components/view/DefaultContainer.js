@@ -3,103 +3,8 @@ import { connect } from 'react-redux';
 import { setSymbol } from '../../reduxStore/actionCreator';
 import { search } from '../../reduxStore/actions/thunkActions';
 import styled from 'styled-components';
-import TextField from '../ui/TextField';
-
-const Container = styled.div`
-  display: grid;
-  grid-template-areas: 'header'
-   'body' 
-   'footer';
-  width: 100%;
-  height: 600px;
-  background-image: url('../../assets/images/backgroundImageFourPeople.jpg');
-  background-repeat: no-repeat;
-  // -webkit-filter: blur(5px) grayscale();
-  // filter: blur(5px) grayscale(70%);
-  align-items: center;
-  align-container: center;
-  background-size: cover;
-`;
-
-const Header = styled.header`
-  grid-area: header;
-  background-color: #f5f5f5;
-  padding: 30px;
-  align-items: center
-  text-align: center;
-  font-size: 35px;
-`;
-
-const Body = styled.body`
-  padding: 30px;
-  grid-area: body;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -webkit-align-content: center;
-  align-content: center;
-  background-color: black;
-  align-content: center;
-  justify-content: center
-`;
-
-const ContentSearch = styled.div`
-  grid-area: search;
-  height: 60px;
-  width: 800px;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  background-color: #707070;
-`;
-
-const Contents = styled.div`
-  height: 300px;
-  width: 800px;
-  display: grid;
-  grid-template-areas: 'info chart';
-  justify-content: space-around;
-  background-color: white;
-`;
-const ContentError = styled.div`
-  grid-area: error;
-  height: 40px;
-  width: 800px;
-  -webkit-column-count: 2; 
-  -moz-column-count: 2; 
-  column-count: 2;
-  text-align: center;
-  align-items: center;
-  justify-content: center;
-  background-color: red;
-  color: black;
-`;
-
-const ContentInfo = styled.div`
-  padding: 30px;
-  width: 200px;
-  grid-area: info;  
-  background-color: #424242;
-  border-style: solid;
-`;
-
-const ContentChart = styled.div`
-  padding: 30px;
-  width: 200px;
-  grid-area: chart;
-  background-color: #424242;
-  border-style: dashed;
-`;
-
-const Footer = styled.footer`
-  grid-area: footer;
-  background-color: #f5f5f5;
-  padding: 10px;
-  text-align: right;
-  clear: both;
-`;
-
+import TextInputWithAction from '../ui/TextInputWithAction';
+import ErrorComponent from '../ui/ErrorComponent';
 
 class DefaultContainer extends React.Component {
 
@@ -114,28 +19,30 @@ class DefaultContainer extends React.Component {
     return (
       <Container>
         <Header>I'm a Header </Header>
-        <Body>
 
-          <ContentSearch> 
-            <TextField></TextField>
-          </ContentSearch>
+        <ContentSearch> 
+          <TextInputWithAction onSubmit = { this.onSubmit.bind(this) } ></TextInputWithAction>
+        </ContentSearch>
 
-          <ContentError>Area Error</ContentError>
 
-          <Contents> 
-            <ContentInfo>Info</ContentInfo>
-            <ContentChart>Chart</ContentChart>
-          </Contents>
-          
-        </Body>
-        <Footer>Hey aqui que acaba!!</Footer>
+        <Contents> 
+          <ContentInfo>Info</ContentInfo>
+          <ContentChart>Chart</ContentChart>
+        </Contents>
+
+        <ContentError>
+          <ErrorComponent error = {this.props.error }/>
+        </ContentError>
+
+        <Footer>Dev Katia Cibele</Footer>
+
       </Container>
         
     );
   }
 
-  onSubmit(){
-    this.props.fazerBusca( this.state.inputText );
+  onSubmit( newValue ){
+    this.props.fazerBusca( newValue );
   }
 }
 
@@ -146,4 +53,77 @@ const mapDispatchToProps = ( dispatch ) => ({
   }
 });
 
-export default connect( null, mapDispatchToProps )( DefaultContainer );
+const mapStateToProps = ( state ) => ({
+  error: state.error
+});
+
+export default connect( mapStateToProps, mapDispatchToProps )( DefaultContainer );
+
+
+const Container = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 15vh 10vh 55vh 5vh 5vh;
+  grid-template-areas: 
+    'header   header    header  header'
+    '.        search    search   .' 
+    '.        contents  contents    .' 
+    '.        error     error    .' 
+    'footer   footer    footer  footer';
+  width: 100%;
+  grid-gap: 2.5vh;
+  height: 100vh;
+`;
+
+const Header = styled.header`
+  grid-area: header;
+  background-color: #f5f5f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  font-size: 35px;
+`;
+
+const ContentSearch = styled.div`
+  grid-area: search;
+  height: 60px;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  `;
+ 
+  
+const Contents = styled.div`
+  display: flex;
+  grid-area: contents
+  -webkit-column-count: 2; 
+  -moz-column-count: 2; 
+  column-count: 2;
+  justify-content: space-around;
+  background-color: white;
+`;
+const ContentError = styled.div`
+  grid-area: error;
+
+`;
+
+const ContentInfo = styled.div`;  
+  background-color: #424242;
+  flex-grow: 1;
+  border-style: solid;
+`;
+
+const ContentChart = styled.div`
+  flex-grow: 1;
+  background-color: #424242;
+  border-style: dashed;
+`;
+
+const Footer = styled.footer`
+  grid-area: footer;
+  background-color: #f5f5f5;
+  padding: 10px;
+  text-align: right;
+  clear: both;
+`;

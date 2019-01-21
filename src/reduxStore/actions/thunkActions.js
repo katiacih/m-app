@@ -1,12 +1,16 @@
-import { fetch, setLatestPrice, setChart, setCompany, addData, removeData } from '../actionCreator';
+import { fetch, setLatestPrice, setChart, setCompany, addData, removeData, setCurrent, cancelFetch, setError } from '../actionCreator';
 import { getLatestStockPrice, getChart, getCompany } from '../../lib/stockApi';
-
-// const MAX_REQUEST_TIME = 5000;
 
 export const search = () => ( dispatch, getState ) => {
   let { current: { symbol }, cache, current } = getState();
 
   if( symbol !== '' ){
+    let companyData = cache.find( ( data ) => {
+      return (data.symbol === symbol);
+    } );
+    
+    if( companyData ) return dispatch( setCurrent(companyData) );
+    
     dispatch( fetch() );
     Promise.all([
       fetchLatestPrice( symbol ),
@@ -17,14 +21,16 @@ export const search = () => ( dispatch, getState ) => {
         dispatch( setLatestPrice(latestPrice) );
         dispatch( setCompany( company ) );
         dispatch( controllerCache( symbol) );
+        dispatch( cancelFetch() );
       })
-      .catch( ( msg ) => console.log( msg ));
-    // dispatch( updateLatestPrice( symbol));
-    // dispatch( updateChartData( symbol ));
-    // dispatch( updateCompany( symbol ));
-    // dispatch( addData() );
+      .catch( ( msg ) => {
+        dispatch( cancelFetch() );
+        dispatch( actionSetError('Dados não encontrado') );
+      }
+      );
   }else{
-    alert( 'ERRO' );
+    dispatch( cancelFetch() );
+    dispatch( actionSetError('Campo Obrigatório') );
   }
 };
 
@@ -40,6 +46,13 @@ const fetchLatestPrice = ( symbol ) => {
       })
       .catch( () => reject( 'error on lastest' ));
   }); 
+};
+
+const actionSetError = ( msg ) => ( dispatch ) => {
+  dispatch( setError(msg) );
+  setTimeout(() => {
+    dispatch( setError('') );
+  }, 6000);
 };
 
 const fetchCompany = ( symbol) => {
@@ -74,17 +87,9 @@ const fetchChartData = ( symbol ) => ( dispatch ) => {
 
 };
 
-const controllerCache = ( symbol ) => ( dispatch, getState ) => {
+const controllerCache = () => ( dispatch, getState ) => {
   const { cache, current } = getState();
-  let c = cache.filter( ( data ) => {
-        return (data.symbol === symbol)
-      } );
-  console.log( c.length );
-  if( c.length !== 0 ){
-    //ja tem o dado no cache
-    //resta apenas setar
-  }else{
-      if( cache.length >= 10 ){ dispatch( removeData(0)) }
-      dispatch( addData( current) );
-  }  
-}
+  if( cache.length >= 10 ) dispatch( removeData(0));
+  dispatch( addData( current ) );
+  
+};

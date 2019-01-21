@@ -62,7 +62,17 @@ export const setCompany = ( data = {} ) => ({
  * @returns {object} a redux action
  */
 export const setCurrent = ( data= {} ) => ({
-  type: C.SET_CURRENT,
+  type: C.SET_CURRENT_DATA,
+  payload: data
+});
+
+/**
+ * @description Prepares a redux action to set error message 
+ * @param {string} data string
+ * @returns {object} a redux action
+ */
+export const setError = ( data= '' ) => ({
+  type: C.SET_ERROR,
   payload: data
 });
 
@@ -83,7 +93,7 @@ export const addData = ( data = {} ) => ({
  * @param {string} [options.symbol] Symbol to be removed,
  * @returns {object} a redux action
  */
-export const removeData  = ( options = { index: 0 } ) => ({
+export const removeData = ( options = { index: 0 } ) => ({
   type: C.ADD_DATA,
   payload: options
 });

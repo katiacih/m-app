@@ -50,6 +50,15 @@ const chartData = ( state = [], action ) => {
   }
 };
 
+const error = ( state ='', action ) => {
+  switch ( action.type ){
+  case C.SET_ERROR:
+    return action.payload;
+  default:
+    return state;
+  }
+};
+
 const cache = ( state=[], action )=> {
   switch( action.type ){
   case C.ADD_DATA:
@@ -58,15 +67,16 @@ const cache = ( state=[], action )=> {
     return ( action.payload.index 
       ? state.filter((data, index) => index !== action.payload.index)
       : state.filter((data, index) => data.symbol !== action.payload.symbol)
-    )
+    );
   default:
     return state;
   }
 };
 
+
 const current = ( state = {}, action ) => {
   switch( action.type ){
-  case C.SET_CURRENT:
+  case C.SET_CURRENT_DATA:
     return action.payload;
   case C.SET_SYMBOL:
     return {...state, symbol: symbol( state.symbol, action )};
@@ -82,6 +92,7 @@ const current = ( state = {}, action ) => {
 };
 
 export default combineReducers({
+  error,
   isFetching,
   cache,
   current
