@@ -28,7 +28,6 @@ class TextInputWithAction extends React.Component {
               { inputText: ev.target.value.toUpperCase() }) }>
 
           </Input> 
-          <Span></Span>
           <SearchButton
             onClick = { () => this.props.onSubmit(this.state.inputText) }
           ><FaSearch size={22} color='black'/></SearchButton> 
@@ -50,6 +49,10 @@ const Container = styled.div`
   align-items: center;
   overflow: hidden;
   padding-left: 12.5%;
+  @media (max-width: 750px){
+    padding: 8px;
+  }
+
   `;
 
 const InputField = styled.div`
@@ -59,8 +62,12 @@ const InputField = styled.div`
   background: ${LINEAR_GRADIENT};
   width: 80%;
   height: 100%;
+  border: none;
   border-radius: 9999em;
   padding: 2px 2px 2px 8px;
+  @media (max-width: 750px){
+    width: 100%;
+  }
 `;
 
 const Input = styled.input`
@@ -73,31 +80,11 @@ const Input = styled.input`
   padding: 8px;
   border: none;
   box-sizing: border-box;
-
-  &:focus + span {
-    opacity: 1;
-    transform: scale(1);
+  outline: none;
+  @media (max-width: 500px){
+    width: 84%;
   }
-`;
 
-const Span = styled.span`
-  background-image: ${LINEAR_GRADIENT};
-  flex-shrink: 0;
-  width: 90%;
-  border-top-left-radius: inherit;
-  border-bottom-left-radius: inherit;
-  height: 80%;
-  transform: scale(.8, .8);
-  position: relative;
-  left: -90%;
-  z-index: 1;
-  box-sizing: border-box;
-  opacity: 0;
-  transition: transform 0.25s, opacity 0.5s;
-  box-shadow: inset 0 0 0 3px #fff,
-    0 0 0 2px #fff,
-    3px -3px 30px #1beabd, 
-    -3px 3px 30px #10abff;
 `;
 
 const SearchButton = styled.button`
@@ -105,12 +92,14 @@ const SearchButton = styled.button`
   box-shadow: inset 0 0 0 1px #fff;
   border-top-right-radius: 9999em;
   border-bottom-right-radius: 9999em;
+  min-width: 9%;
   position: relative;
   height: 80%;
   border: none;
-  left: -90%;
   color: white;
-  &:hover {
-    background: red;
+  outline: none;
+
+  @media (max-width: 500px){
+    min-width: 14.5%;
   }
 `;

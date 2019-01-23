@@ -1,29 +1,48 @@
-import { fetch, setLatestPrice, setChart, setCompany, addData, removeData, setCurrent, cancelFetch, setError } from '../actionCreator';
-import { getLatestStockPrice, getChart, getCompany } from '../../lib/stockApi';
+import { fetch, 
+  addData, 
+  removeData, 
+  setCurrent, 
+  cancelFetch, 
+  setError, 
+  setChart } from '../actionCreator';
+import { getLatestStockPrice, 
+  getChart, 
+  getCompany } from '../../lib/stockApi';
+
+const DATE_FORMAT = { 
+  year:'2-digit', 
+  month: 'numeric', 
+  timeZone: 'America/Sao_Paulo', 
+  day: 'numeric'};
 
 export const search = () => ( dispatch, getState ) => {
-  let { current: { symbol }, cache, current } = getState();
+  let { current: { symbol }, cache} = getState();
 
   if( symbol !== '' ){
     let companyData = cache.find( ( data ) => {
       return (data.symbol === symbol);
     } );
     
-    if( companyData ) return dispatch( setCurrent(companyData) );
+    if( companyData ) {
+      dispatch( setCurrent(companyData) );
+      return; }
     
     dispatch( fetch() );
     Promise.all([
       fetchLatestPrice( symbol ),
       fetchCompany( symbol ),
+      fetchDataChart( symbol ),
     ])
-      .then( ([ latestPrice, company ]) => {
-        dispatch( fetchChartData( symbol ));
-        dispatch( setLatestPrice(latestPrice) );
-        dispatch( setCompany( company ) );
-        dispatch( controllerCache( symbol) );
+      .then( ([ latestPrice, company, chartData ]) => {
+        let companyData = { latestPrice, company, chartData, symbol };
+        // dispatch( setLatestPrice(latestPrice) );
+        // dispatch( setCompany( company ) );
+        // dispatch( setChart( chartData ) );
+        dispatch( setCurrent( companyData ));
+        dispatch( controllerCache( symbol ) );
         dispatch( cancelFetch() );
       })
-      .catch( ( msg ) => {
+      .catch( () => {
         dispatch( cancelFetch() );
         dispatch( actionSetError('Dados não encontrado') );
       }
@@ -61,7 +80,6 @@ const fetchCompany = ( symbol) => {
       .then( response => {
         if( response.ok ){
           response.json().then( values => {
-            // console.log( values );
             resolve( values );
           }
           );
@@ -73,18 +91,50 @@ const fetchCompany = ( symbol) => {
 
 };
 
+const fetchDataChart = (symbol) => {
+  return new Promise( (resolve, reject) => {
+    getChart( symbol )
+      .then( response => {
+        if( response.ok ){
+          response.json().then( values => { 
+            let formatedData = values.map( ( value ) => {
+              return {
+                date: new Date( value.date ).toLocaleString('pt-br', DATE_FORMAT),
+                price: value.close
+              };
+            } );
+            resolve( formatedData );
+          });
+        }else{
+          reject('not found');
+        }
+      } ).catch( () =>reject(' error on Chart Data'));
+  } );
+};
 
-const fetchChartData = ( symbol ) => ( dispatch ) => {
-  getChart( symbol ).then( response => {
-    // console.log( response.body);
+
+export const fetchChartByRange = ( range = '1m' ) => ( dispatch, getState) => {
+  getChart( getState().current.symbol, { range } ).then( response => {
     if( response.status === 200 ){
-      response.json().then( (data) => {
-        dispatch( setChart( data ) );
-        // console.log( data );
+      response.json().then( ( values ) => {
+        let formatedData = range === '1d'
+          ? (
+            values.map( value => ({
+              date: value.minute,
+              price: value.close
+            }))
+          )
+          : (
+            values.map( ( value ) => ({ 
+              date: new Date( value.date ).toLocaleString('pt-br', DATE_FORMAT),
+              price: value.close
+            }))
+          );
+        dispatch( setChart( formatedData ));
+     
       } );
     }
   } );
-
 };
 
 const controllerCache = () => ( dispatch, getState ) => {

@@ -350,4 +350,9 @@ template {
 
 * {
   box-sizing: border-box;
+  font-family: 'Lora', 'serif', 'Arial', 'Helvetica', 'sans-serif';
+}
+
+text {
+  font-family: 'serif', 'Arial', 'Helvetica', 'sans-serif';
 }
