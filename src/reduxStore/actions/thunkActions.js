@@ -44,6 +44,7 @@ export const search = () => ( dispatch, getState ) => {
       })
       .catch( () => {
         dispatch( cancelFetch() );
+        dispatch( setCurrent() );
         dispatch( actionSetError('Dados não encontrado') );
       }
       );

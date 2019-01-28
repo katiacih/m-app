@@ -17,7 +17,7 @@ class ChartDetail extends React.Component {
       optionChart : '1m'
     };
     this.intervalId = null;
-    this.chartRef = null;
+    this.selectRef = null;
   }
 
   componentWillUnmount(){
@@ -26,7 +26,8 @@ class ChartDetail extends React.Component {
 
 
   componentDidUpdate( prevProps, prevState ){
-    const { optionChart } = this.state;
+    const { optionChart} = this.state;
+    const { symbol } = this.props;
 
     if( prevState.optionChart !== optionChart ){
       if( this.intervalId ) clearInterval( this.intervalId );
@@ -41,6 +42,11 @@ class ChartDetail extends React.Component {
       default:
         this.props.refreshChart( this.state.optionChart );
       }
+    }
+
+    if( prevProps.symbol !== symbol ){
+      if( this.intervalId ) clearInterval( this.intervalId );
+      if (this.selectRef) this.selectRef.value = '1m';
     }
   }
 
@@ -67,7 +73,9 @@ class ChartDetail extends React.Component {
               </LineChart>
             </ResponsiveContainer>
             <ContainerButtons>
-              <Select onChange = { this.onChange }> 
+              <Select 
+                ref={( component ) => this.selectRef = component }
+                onChange = { this.onChange }> 
                 <option value="1m">Past month</option>
                 <option value="3m">Past 3 months</option>
                 <option value="6m">Past 6 months</option>
@@ -94,6 +102,7 @@ class ChartDetail extends React.Component {
 const mapStateToProps = ( state ) => {
   return state.current.company
     ? ({
+      symbol: state.current.company.symbol,
       dataSet: state.current.chartData
     })
     : {};
@@ -116,6 +125,7 @@ const Container = styled.div`
   box-sizing: border-box;
   box-shadow: 0px 5px 8px #000000;
   flex-direction: column; 
+  border-radius: 10px;
   `;
   
 const ContentChart = styled.div`
@@ -132,8 +142,12 @@ const ContentChart = styled.div`
 `;
 
 const Select = styled.select`
-  @media (max-width: 750px){
-    font-size: 12px;
+  @media (orientation: landscape){
+    font-size: 1vw;
+  }
+
+  @media (orientation: portrait){
+    font-size: 2vh;
   }
 `;
 

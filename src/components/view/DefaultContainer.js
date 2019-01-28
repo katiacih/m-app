@@ -7,6 +7,7 @@ import TextInputWithAction from '../ui/TextInputWithAction';
 import ErrorComponent from '../ui/ErrorComponent';
 import CompanyDetails from './CompanyDetails';
 import ChartDetail from './ChartDetail';
+import Loader from '../ui/Loader';
 
 class DefaultContainer extends React.Component {
 
@@ -18,6 +19,7 @@ class DefaultContainer extends React.Component {
   }
 
   render() {
+    const { error, isFetching } = this.props;
     return (
       <Container>
         <Header>M-App</Header>
@@ -25,16 +27,24 @@ class DefaultContainer extends React.Component {
         <ContentSearch> 
           <TextInputWithAction onSubmit = { this.onSubmit.bind(this) } ></TextInputWithAction>
         </ContentSearch>
-
+        
         <ContentInfo>
-          <CompanyDetails/>
+          {isFetching ? 
+            <Loader/>
+            : <CompanyDetails/>
+          }
         </ContentInfo>
+        
+        
         <ContentChart>
-          <ChartDetail/>
+          {isFetching ? 
+            <Loader/>
+            : <ChartDetail/>
+          }
         </ContentChart>
 
         <ContentError>
-          <ErrorComponent error = {this.props.error }/>
+          <ErrorComponent error = { error }/>
         </ContentError>
 
         <Footer>Dev KatiaCih</Footer>
@@ -57,7 +67,8 @@ const mapDispatchToProps = ( dispatch ) => ({
 });
 
 const mapStateToProps = ( state ) => ({
-  error: state.error
+  error: state.error,
+  isFetching: state.isFetching
 });
 
 export default connect( mapStateToProps, mapDispatchToProps )( DefaultContainer );
